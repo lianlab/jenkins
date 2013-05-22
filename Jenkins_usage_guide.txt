@@ -1,0 +1,926 @@
+Jenkins Usage Guide
+
+
+Richard Wu (richard.wu@lianlab.org)
+
+
+Code can be get from [http://github.com/lianlab http://github.com/lianlab]
+
+Ant based project [https://github.com/lianlab/hermitlibrary https://github.com/lianlab/hermitlibrary]
+
+Maven based project [http://vpn.lianlab.com:9090/sample-mvn-project http://vpn.lianlab.com:9090/sample-mvn-project]
+
+
+Jenkins installation can use the following guide, or use the page from [http://github.com/lianlab/jenkins http://github.com/lianlab/jenkins]
+
+
+# '''Installation'''
+
+Jenkins can be easily installed as a standalone JSP application, or as an OS service. 
+
+## '''Installation'''
+
+Download the latest version form jenkins-ci.org, get the right jenkins.war file. To install it, just run following command in the shell:
+
+
+java -jar jenkins.war
+
+
+After that, using a browser to access the host's 8080 port, who is running the jenkins. For example, try [http://localhost:8080/ http://localhost:8080],
+
+
+# 
+## '''Installation for specific OS'''
+
+Jenkins is pure JSP app, it doesn't depends on any OS. But it's better to provide OS-dependent jenkins, so it can be installed as an system level service. That Jenkins team has already done, so go to jenkins-ci.org，on the Download section, it's listed for specific OS. Download it, and click to install.
+
+As a web service, Jenkins can be installed on any OS. But as a service that can be stable、secure、easy for multi-user access, Unix/Linux are recommended. More specific, Ubuntu might be the best choice for such purpose. 
+
+
+# 
+## '''Installation on Ubuntu as system service'''
+
+Login into Ubuntu with account that can access sudo privilege. Ssh is more than enough, type the following command in the login shell. If access through GUI, just open the application, like “gnome-terminal”，”terminal”，in the opened shell windows, type in comand.
+
+
+To install Jenkins on Ubuntu, just copy following commands into shell and run. Type in the user password to continue if any password prompts.
+
+wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
+
+sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+
+sudo apt-get update
+
+sudo apt-get install jenkins
+
+
+After that, the jenkins will be run automatically on that machine. 
+
+
+To reboot jenkins, just use following command in shell,
+
+sudo service jenkins restart
+
+
+If any updates of jenkins, it will show prompts automatically, update will be done after click Confirm in Ubuntu's update dialog. Or it can be done in shell as before,
+
+sudo apt-get update -y
+
+sudo apt-get upgrade -y jenkins 
+
+
+Now, the only thing needs to be done is access Jenkins' website, ''Ubuntu_IP'':8080. The default page will be like below,
+
+
+[[Image:]]
+
+
+# '''Quick start'''
+
+After installation, jenkins can be used quickly for automatic building or testing. 
+
+
+# 
+## '''Configure basically'''
+
+Jenkins is JSP app, so correct JDK (at least JDK6 ) must be installed before it can be used. And if any required tools for the project, like subversion、git、maven、ant，it must be installed on the Machine that running Jenkins,
+
+
+On Ubuntu, it can be done like 
+
+sudo apt-get install ant git maven3
+
+
+All of the tools also can be configured in Jenkins configuration panel. Configure system like below,
+
+
+[[Image:]]
+
+# 
+## '''Install JDK'''
+
+JDK is required to run Jenkins, but is also needed for building project. And any JDKs that supports JSP server is fine for Jenkins, but for Jenkins' project, it will be better to use standard JDK. In other words, if we had used OS's default JDK, we must configure another standard one in Jenkins' setting panel.
+
+
+Just click the Add JDK, and do it under the Page suggested.
+
+
+[[Image:]]'''''Note 1 – '''it's fine to use Install automatically, but it will save a lot effort to download the JDK manually, and setting the path afterward. JDK can be get at [http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html]. Download the jdk''
+
+
+'''''Note 2''' '''–''' JDK 6 is enough for almost every java projects. it's only necessary to setup JDK 7 if some new Java 7 feature used, like ''
+
+
+'''''Note 3 – '''make sure JDK is installed, not the JRE''
+
+
+# 
+## '''Install Ant and Maven'''
+
+Jenkins is made for Java project, and is extended to other programming languages. So in Jenkins, the java build tools are well supported. Jenkins natively supports two standard java building tool, Ant and Maven.
+
+
+Ant is the old building tool for java project. Old means stability, we can just use the ant came with the OS. If any special requirement, we can configure it on Manage Jenkins page. The official ant can be downloaded from ant.apache.org.
+
+
+Maven is the new standard building tool for java project. It enhanced ant with many feature, like auto dependency handling, auto-deploy, decentralized compiling and so on. If used well, Maven can also be used as Continuously Integration tool, only with more maintenance effort. 
+
+
+But Maven is NEW, which means it's not stable as ant, you may always want to use newer Maven version and deployed it into Jenkins. Maven's official site is maven.apache.org.
+
+
+To leverage the pain, we can configured it to be automatically updated, like below,
+
+
+[[Image:]]
+
+For product level usage, it's suggested to keep more Maven tool version in Jenkins, this will handle more dedicated Maven building project.
+
+
+# 
+## '''Start a job'''
+
+After the basic environment is configured, we can return to Jenkins' main page, click New Job. In such page, we can added a building job, or any automatically job easily.
+
+
+To create a new project, just click the “New Job” of Jenkins Dashboard, 
+
+
+[[Image:]]Project types:
+
+* Free style – simple build project, nothing particular, all the project option will be configured in the next page.
+* Maven – build project based on maven. Similar to Free style, but all the operations will be based on maven's pom.xml. 
+* Multi-configuration – build project suitable for multiple feature
+* Monitor – project that only monitor other sources.
+
+For example, if free style project chosen, the next page will be like,
+
+
+[[Image:]]
+
+Such project configurations can be changed after the project is created. After special plugin loaded, the project setting page will be affected. We can choose the only necessary part of it.
+
+
+The blue question mark icon will be very useful, if any configuration is uncertain. Just clicking on it, Jenkins will show related help item of such option. 
+
+
+Jenkins works by checking out the source code of your project and building it in its own workspace. So the start point is ''Source Code Management'', which tells Jenkins where it can find the source code for your project. By default, only CVS and subversion is provided, but any Version Control System will be supported after using coordinate plugin.
+
+
+After scrolling the page a little more, we can see more options can be set,
+
+[[Image:]]The Add build step will contains all the build operations Jenkins can do, 
+
+
+[[Image:]]
+
+
+By default, we can run shell, Ant and Maven. Because we can run shell, that means it theoretically can do anything. To simplify the build project, we can just choose Execute shell, type in a shell that never fail, like “ls”, then a simple project is ready. 
+
+
+If we want to test more, we can change the shell command to non-existed file, like “helloworld”, then we can see failed report in Jenkins project.
+
+
+After the build step, we can add some post-build action, just click Add post-build action, then a command list will be shown,
+
+
+[[Image:]]
+
+As we can see, we can see many operations Jenkins can do after build. We can generate different report, auto deploy the result and even send notifications automatically.
+
+
+After that, we choose Save, then the job is ready.
+
+
+[[Image:]]To kick off the build, just click Build Now.
+
+
+# 
+## '''Project Status'''
+
+After New Job, the job is still configurable in the project page, and we can also check the result there,
+
+[[Image:]]
+
+
+After click the build item, it goes to job detail page,
+
+
+[[Image:]]All the jobs status will be shown on the main page,
+
+
+[[Image:]] 
+
+
+# '''Configuration'''
+
+Jenkins has simple and clear configuration page. 
+
+
+# 
+## '''Manage Jenkins'''
+
+Jenkins can be configured easily through “Manage Jekins” Menu, or directly goto jenkins' URL/manage.
+
+
+The number of setting items is dynamic, based the plugins are installed. 
+
+[[Image:]]
+
+Jenkins' basic setting item includes,
+
+* Configure System – Main configuration item
+* Manage Plugins – Manage the jenkins plugins
+* System Information – Displaying the jenkins' host environment
+* System Log – Displaying system log
+* Jenkins CLI – The URL to jenkins' web start UI
+* Manage Nodes – Manage the node to run task
+
+All of item could be useful during actually deployment, but only two are identical – ''Configure System ''and ''Manage Plugins''. 
+
+
+Configure System contains all the system level configurations, which is the dependency for Jenkins during deployment. Like JDK, ant, maven, and so on. Configuration System page should be like following diagram,
+
+[[Image:]]
+
+
+Manage Plugins is used to configure the Jenkins most powerful feature, massive plugins. Any feature related to automatic operations can be a plugin to Jenkins. Thanks to the open source nature of Jenkins, any plugin you needed might have been imported into Jenkins. Jenkins has more than 400 handred plugins.
+
+
+[[Image:]]
+
+
+# 
+## '''System Environment'''
+
+The most important Jenkins administration page is the Configure System screen. Here, you set up most of the fundamental tools that Jenkins needs to do its daily work. The default screen contains a number of sections, each relating to a different configuration area or external tool. In addition, when you install plugins, their system-wide configuration is also often done in this screen. 
+
+[[Image:]]
+
+# 
+## '''Global Properties'''
+
+The Global Properties section lets you define variables that can be managed centrally but used in all of your build jobs. You can add as many properties as you want here, and use them in your build jobs. Jenkins will make them available within your build job environment, so you can freely use them within your Ant and Maven build scripts. Note that you shouldn’t put periods (“.”) in the property names, as they won’t be processed correctly. So ldapserver or ldap_server is fine, but not ldap.server. 
+
+
+[[Image:]]
+
+There are two ways you typically use these variables. Firstly, you can use them directly in your build script, using the ${key} or $key notation (so ${ldapserver} or $ldapserver in the example given above). This is the simplest approach, but means that there is a tight coupling between your build job configuration and your build scripts. Like following usage,
+
+
+[[Image:]]
+
+
+# 
+## '''Mail Server'''
+
+The last of the basic configuration options you need to set up is the email server configuration. Email is Jenkins’s more fundamental notification technique—when a build fails, it will send an email message to the developer who committed the changes, and optionally to other team members as well. So Jenkins needs to know about your email server.
+
+[[Image:]]
+
+
+# '''Building jobs'''
+
+Build jobs are the basic currency of a Continuous Integration server. 
+
+By using plugin, Jenkins can handle any project directly. But as a CI server, a job means configurable standard operations, like compiling, testing, packaging, deploying or otherwise doing something. 
+
+
+Build jobs come in a variety of forms; you may want to compile and unit test your application, report on code quality metrics related to the source code, generate documentation, bundle up an application for a release, deploy it to production, run an automated smoke test, or do any number of other similar tasks. 
+
+# 
+## '''Jenkins build jobs'''
+
+As we can see before, jenkins has four basic type of build. But on the new Jenkins server, we can have more,
+
+
+[[Image:]]We can also set the advanced project options. The Advanced Project options contains, as the name suggests, configuration options that are less frequently required. You need to click on the Advanced button for them to appear.
+
+
+[[Image:]]
+
+The Quiet Period option in the build job configuration simply lets you override the system-wide quiet period defined in the Jenkins System Configuration screen. This option is mainly used for version control systems that don’t support atomic commits, such as CVS, but it is also sometimes used in teams where developers have the habit of committing their work in several small commits. 
+
+
+The “Block build when upstream project is building” option is useful when several related projects are affected by a single commit, but they must be built in a specific order. If you activate this option, Jenkins will wait until any upstream build jobs have finished before starting this build. 
+
+
+# 
+## '''Source Code Management'''
+
+In its most basic role, a Continuous Integration server monitors your version control system, and checks out the latest changes as they occur. The server then compiles and tests the most recent version of the code. Alternatively, it may simply check out and build the latest version of your source code on a regular basis. In either case, tight integration with your version control system is essential. 
+
+
+Because of its fundamental role, SCM configuration options in Jenkins are identical across all sorts of build jobs. Jenkins supports CVS and Subversion out of the box, with built-in support for Git, and also integrates with a large number of other version control systems via plugins. At the time of writing, SCM plugin support includes Accurev, Bazaar, BitKeeper, ClearCase, CMVC, Dimensions, Git, CA Harvest, Mercurial, Perforce, PVCS, StarTeam, CM/Synergy, Microsoft Team Foundation Server, and even Visual SourceSafe. In the rest of this section, we will look at how to configure some of the more common SCM tools. 
+
+
+To use subversion,
+
+
+[[Image:]]To use git,
+
+
+[[Image:]]
+
+'''''Note --- '''no matter any source code management system is used, it must make sure the correct branch is used.''
+
+
+# 
+## '''Build Trigger'''
+
+The basic Git plugin offers the ability to Poll SCM on a timed basis, looking for changes since the last inquiry. If changes are found, a build is started. The polling log is accessible via a link on the left hand side of the page in the navigation bar when viewing a specific job. It offers information on the last time the repository was polled and if it replied with a list of changes . 
+
+
+After some build trigger plugin installed, Jenkins can get more advanced build trigger. For example, we can add gerrit plugin, then any developer activities can trigger the building operations.
+
+
+[[Image:]]In a Freestyle build, there are three basic ways a build job can be triggered : 
+
+* Start a build job once another build job has completed 
+* Kick off builds at periodical intervals 
+* Poll the SCM for changes 
+
+[[Image:]]
+
+Schedule is based on CRON syntax, with some Jenkins' specific enhancement, it will be shown on the blue icon.
+
+
+# 
+## '''Build Step'''
+
+A build job may have one step, or more. It may even occasionally have none. In a freestyle build, you can add as many build steps as you want to the Build section of your project configuration 
+
+
+After we clicked on Build Step, several build steps will be shown, we can then choose Maven, Ant or Shell.
+
+# 
+## 
+### '''Maven project'''
+
+For Maven Build Steps, Jenkins has excellent Maven support, and Maven build steps are easy to configure and very flexible. Just pick “Invoke top-level Maven targets” from the build step lists, pick a version of Maven to run.
+
+
+Just like on the command line, you can specify as many individual goals as you want. You can also provide command-line options. A few useful Maven options in a CI context are: 
+
+-B, --batch-mode This option tells Maven not to prompt for any input from the user, just using the default values if any are required. If Maven does prompt for any input during the Jenkins build, the build will get stuck indefinitely. 
+
+-U, --update-snapshots Forces Maven to check for updated releases and snapshot dependencies on the remote repository. This makes sure you are building with the latest and greatest snapshot dependencies, and not just using older local copies which may not by in sync with the latest version of the source code. 
+
+-Dsurefire.useFile=false
+
+This option forces Maven to write JUnit output to the console, rather than to text files in the target directory as it normally would. This way, any test failure details are directly visible in the build job console output. The XML files that Jenkins needs for its test reporting will still be generated. 
+
+After that, only Maven's target must be specified, such targets is list after run the mvn command in directory with pom.xml file. The commonly used Maven target includes,
+
+* test
+* install
+* package
+* verify
+
+[[Image:]]
+
+# 
+## 
+### '''Ant project'''
+
+Freestyle build jobs work equally well with Ant. Apache Ant is a widely-used and very well-known Java build scripting tool. Indeed, a very large number of Java projects out there rely on Ant build scripts. 
+
+
+Ant is not only used as a primary build scripting tool—even if your project uses Maven, you may resort to calling Ant scripts to do more specific tasks. There are Ant libraries available for many development tools and low-level tasks, such as using SSH, or working with proprietary application servers. 
+
+
+In its most basic form, configuring an Ant build step very is simple indeed—you just provide the version of Ant you want to use and the name of the target you want to invoke. “Configuring an Ant build step”, for example, we are invoking an Ant script to run a JMeter test script. 
+
+
+[[Image:]]
+
+# 
+## '''Post Build Action'''
+
+Once the build is completed, there are still a few things you need to look after. You might want to archive some of the generated artifacts, to report on test results, and to notify people about the results. In this section, we look at some of the more common tasks you need to configure after the build is done. 
+
+
+# 
+## 
+### '''Test Reports'''
+
+One of the most obvious requirements of a build job is to report on test results. Not only whether there are any test failures, but also how many tests were executed, how long they took to execute, and so on. In the Java world, JUnit is the most commonly-used testing library around, and the JUnit XML format for test results is widely used and understood by other tools as well. 
+
+
+Jenkins provides great support for test reporting. In a freestyle build job, you need to tick the “Publish JUnit test result report” option, and provide a path to your JUnit report files . You can use a wildcard expression (such as**/target/surefire-reports/*.xml in a Maven project) to include JUnit reports from a number of different directories—Jenkins will aggregate the results into a single report. 
+
+
+[[Image:]]
+
+# 
+## 
+### '''Archiving Build Result'''
+
+With a few exceptions, the principal goal of a build job is generally to build something. In Jenkins, we call this something an artifact. An artifact might be a binary executable (a JAR or WAR file for a Java project, for example), or some other related deliverable, such as documentation or source code. A build job can store one or many different artifacts, keeping only the latest copy or every artifact ever built. 
+
+
+Configuring Jenkins to store your artifacts is easy—just tick the “Archive the artifacts” checkbox in the Post-build Actions, and specify which artifacts you want to store.
+
+
+[[Image:]]
+
+# 
+## 
+### '''Notifications'''
+
+The point of a CI server is to let people know when a build breaks. In Jenkins, this comes under the heading of Notification. 
+
+
+[[Image:]]Out of the box, Jenkins provides support for email notification. You can activate this by ticking the “E-mail Notification” checkbox in the Post-build Actions .Then enter the email addresses of the team members who will need to know when the build breaks. When the build does break, Jenkins will send a friendly email message to the users in this list containing a link to the broken build. 
+
+
+# 
+## '''Ant'''
+
+Ant project can be easily added as a “free-style” project. Ant works quite well on Java build, but also can be used on other project, check the ant script syntax on ant.apache.org.
+
+
+We can create build.xml int source code directory, with following contents,
+
+
+<nowiki><?xml version=</nowiki>"1.0" encoding="UTF-8"?>
+
+<nowiki><project </nowiki>name<nowiki>=</nowiki>"HermitLibrary" default<nowiki>=</nowiki>"compile" basedir<nowiki>=</nowiki>".">
+
+<nowiki><target </nowiki>name<nowiki>=</nowiki>"compile" depends<nowiki>=</nowiki>"init">
+
+<nowiki><javac </nowiki>srcdir<nowiki>=</nowiki>"${src.dir}" destdir<nowiki>=</nowiki>"${classes.dir}" debug<nowiki>=</nowiki>"yes" 
+
+includeantruntime<nowiki>=</nowiki>"true">
+
+<nowiki><classpath </nowiki>refid<nowiki>=</nowiki>"cobertura.classpath" />
+
+<nowiki></javac></nowiki>
+
+<nowiki></target></nowiki>
+
+<nowiki></project></nowiki>
+
+
+After that, in the same directory, type in ant will start compile operation. And such target can be specified in Ant Build Step. 
+
+
+# 
+## '''Maven'''
+
+Maven build jobs are specifically adapted to Maven 2 and Maven 3 builds. Creating a Maven build job requires considerably less work than configuring the equivalent freestyle build job. Maven build jobs support advanced Maven-related features such as incremental builds on multimodule projects and triggering builds from changes in snapshot dependencies, and make configuration and reporting much simpler. 
+
+
+Maven project is driven by pom.xml, Maven's POM file is more complicated than than Ant, but more flexible. Check maven.apche.org.
+
+
+<nowiki><?xml version=</nowiki>"1.0" encoding="UTF-8"?>
+
+
+<nowiki><project </nowiki>xmlns<nowiki>=</nowiki>"[http://maven.apache.org/POM/4.0.0 http://maven.apache.org/POM/4.0.0]" xmlns:xsi<nowiki>=</nowiki>"[http://www.w3.org/2001/XMLSchema-instance http://www.w3.org/2001/XMLSchema-instance]" xsi:schemaLocation<nowiki>=</nowiki>"[http://maven.apache.org/POM/4.0.0 http://maven.apache.org/POM/4.0.0] [http://maven.apache.org/xsd/maven-4.0.0.xsd http://maven.apache.org/xsd/maven-4.0.0.xsd]">
+
+
+<nowiki><plugin></nowiki>
+
+<nowiki><groupId></nowiki>org.apache.maven.plugins<nowiki></groupId></nowiki>
+
+<nowiki><artifactId></nowiki>maven-antrun-plugin<nowiki></artifactId></nowiki>
+
+<nowiki><version></nowiki>1.7<nowiki></version></nowiki>
+
+<nowiki><executions></nowiki>
+
+<nowiki><execution></nowiki>
+
+<nowiki><id></nowiki>ant-phase-compile<nowiki></id></nowiki>
+
+<nowiki><phase></nowiki>compile<nowiki></phase></nowiki>
+
+<nowiki><goals></nowiki>
+
+<nowiki><goal></nowiki>run<nowiki></goal></nowiki>
+
+<nowiki></goals></nowiki>
+
+<nowiki><configuration></nowiki>
+
+<nowiki><target></nowiki>
+
+<nowiki><property </nowiki>name<nowiki>=</nowiki>"mvn.project.build.outputDirectory" value<nowiki>=</nowiki>"${project.build.outputDirectory}" />
+
+<nowiki><property </nowiki>name<nowiki>=</nowiki>"mvn.project.version" value<nowiki>=</nowiki>"${project.version}" />
+
+<nowiki><property </nowiki>name<nowiki>=</nowiki>"mvn.compile_classpath" refid<nowiki>=</nowiki>"maven.compile.classpath" />
+
+<nowiki><ant </nowiki>antfile<nowiki>=</nowiki>"ant-phase-compile.xml" />
+
+<nowiki></target></nowiki>
+
+<nowiki></configuration></nowiki>
+
+<nowiki></execution></nowiki>
+
+<nowiki><execution></nowiki>
+
+<nowiki><id></nowiki>ant-phase-verify<nowiki></id></nowiki>
+
+<nowiki><phase></nowiki>verify<nowiki></phase></nowiki>
+
+<nowiki><goals></nowiki>
+
+<nowiki><goal></nowiki>run<nowiki></goal></nowiki>
+
+<nowiki></goals></nowiki>
+
+<nowiki><configuration></nowiki>
+
+<nowiki><target></nowiki>
+
+<nowiki><property </nowiki>name<nowiki>=</nowiki>"mvn.project.build.directory" value<nowiki>=</nowiki>"${project.build.directory}" />
+
+<nowiki><property </nowiki>name<nowiki>=</nowiki>"mvn.project.version" value<nowiki>=</nowiki>"${project.version}" />
+
+<nowiki><property </nowiki>name<nowiki>=</nowiki>"mvn.runtime_classpath" refid<nowiki>=</nowiki>"maven.runtime.classpath" />
+
+<nowiki><ant </nowiki>antfile<nowiki>=</nowiki>"ant-phase-verify.xml" />
+
+<nowiki></target></nowiki>
+
+<nowiki></configuration></nowiki>
+
+<nowiki></execution></nowiki>
+
+<nowiki></executions></nowiki>
+
+<nowiki><dependencies></nowiki>
+
+<nowiki><dependency></nowiki>
+
+<nowiki><groupId></nowiki>org.apache.ant<nowiki></groupId></nowiki>
+
+<nowiki><artifactId></nowiki>ant-nodeps<nowiki></artifactId></nowiki>
+
+<nowiki><version></nowiki>1.7.1<nowiki></version></nowiki>
+
+<nowiki></dependency></nowiki>
+
+<nowiki></dependencies></nowiki>
+
+<nowiki></plugin></nowiki>
+
+<nowiki></project></nowiki>
+
+
+After that, Maven will drive ant to run compile target.
+
+
+# 
+## '''Other Build Tool'''
+
+In the similar way, any other project and programming languages will be supported.
+
+
+# '''Automated test'''
+
+Without using automated tests with your Continuous Integration setup, you’re really missing out on something big. Believe me—CI without automated tests is really just a small improvement on automatically scheduled builds. In short, if you are using Jenkins without any automated tests, you are not getting anywhere near as much value out of your Continuous Integration infrastructure as you should. 
+
+
+There are many ways you can integrate automated tests into your application. One of the most efficient ways to write high quality tests is to write them first, using techniques such as Test-Driven Development (TDD) or Behavior-Driven Development (BDD). In this approach, commonly used in many Agile projects, the aim of your unit tests is to both clarify your understanding of the code’s behavior and to write an automated test that the code does indeed implement this behavior. Focusing on testing the expected behavior, rather than the implementation, of your code also makes for more comprehensive and more accurate tests, and thus helps Jenkins to provide more relevant feedback. 
+
+
+# 
+## '''Automating Test'''
+
+Jenkins does an excellent job of reporting on your test results. However, it is up to you to write the appropriate tests and to configure your build script to run them automatically. Fortunately integrating unit tests into your automated builds is generally relatively easy. 
+
+
+There are many unit testing tools out there, with the xUnit family holding a predominant place. In the Java world, JUnit is the de facto standard, although TestNG is another popular Java unit testing framework with a number of innovative features. For C# applications, the NUnit testing framework proposes similar functionalities to those provided by JUnit, as does Test::Unit for Ruby. For C/C+ +, there is CppUnit, and PHP developers can use PHPUnit. 
+
+
+# 
+## '''Configuring Test Reports '''
+
+Once your build generates test results, you need to configure your Jenkins build job to display them. As mentioned above, Jenkins will work fine with any xUnit-compatible test reports, no matter what language they are written in. 
+
+
+For Maven build jobs, no special configuration is required—just make sure you invoke a goal that will run your tests, such as mvn test (for your unit tests) or mvn verify (for unit and integration tests). An example of a Maven build job configuration,
+
+
+[[Image:]]
+
+# 
+## '''Display Test Results'''
+
+Once Jenkins knows where to find the test reports, it does a great job of reporting on them. Indeed, one of Jenkins’s main jobs is to detect and to report on build failures. And a failing unit test is one of the most obvious symptoms. 
+
+
+As we mentioned earlier, Jenkins makes the distinction between failed builds and unstable builds. A failed build (indicated by a red ball) indicates test failures, or a build job that is broken in some brutal manner, such as a compilation error. An unstable build, on the other hand, is a build that is not considered of sufficient quality. 
+
+
+“Jenkins displays test result trends on the project home page” we can see how Jenkins displays a Maven build job containing test failures. This is the build job home page, which should be your first port of call when a build breaks. When a build results in failing tests, the Latest Test Result link will indicate the current number of test failures in this build job, and also the change in the number of test failures since the last build. You can also see how the tests have been faring over time—test failures from previous builds will also appear as red in the Test Result Trend graph. 
+
+[[Image:]]If you click on the Latest Test Result link, Jenkins will give you a rundown of the current test results, “Jenkins displays a summary of the test results”. Jenkins understands Maven multimodule project structures, and for a Maven build job, Jenkins will initially display a summary view of test results per module. For more details about the failing tests in a particular module, just click on the module you are interest in. 
+
+[[Image:]]When a test fails, you generally want to know why. To see the details of a particular test failure, just click on the corresponding link on this screen. This will display all the gruesome details, including the error message and the stack trace, as well as a reminder of how long the test has been failing. You should be wary of tests that have been failing for more than just a couple of builds—this is an indicator of either a tricky technical problem that might need investigating, or a complacent attitude to failed builds, which is more serious and definitely should be investigated. 
+
+
+[[Image:]]
+
+# 
+## '''Ignoring Tests'''
+
+Jenkins distinguishes between test failures and skipped tests. Skipped tests are ones that have been deactivated, for example by using the @Ignore annotation in JUnit 4: 
+
+
+@Ignore("Pending more details from the BA")
+
+@Test
+
+public void cashWithdrawalShouldDeductSumFromBalance() throws Exception {
+
+Account account = new Account();
+
+account.makeDeposit(100);
+
+account.makeCashWithdraw(60);
+
+assertThat(account.getBalance(), is(40));
+
+} 
+
+
+# 
+## '''Code Coverage'''
+
+Code coverage gives an indication of what parts of your application were executed during the tests. While this in itself is not a sufficient indication of quality testing (it is easy to execute an entire application without actually testing anything, and code coverage metrics provide no indication of the quality or accuracy of your tests), it is a very good indication of code that has not been tested. And, if your team is introducing rigorous testing practices such as Test-Driven-Development, code coverage can be a good indicator of how well these practices are being applied. 
+
+
+Cobertura is an open source code coverage tool for Java and Groovy that is easy to use and integrates well with both Maven and Jenkins. 
+
+
+Like almost all of the Jenkins code quality metrics plugins, the Cobertura plugin for Jenkins will not run any test coverage metrics for you. It is left up to you to generate the raw code coverage data as part of your automated build process. Jenkins, on the other hand, does an excellent job of reporting on the code coverage metrics, including keeping track of code coverage over time, and providing aggregate coverage across multiple application modules. 
+
+
+# 
+## 
+### '''Cobertura for Ant'''
+
+Cobertura comes bundled with an Ant task that you can use to integrate Cobertura into your Ant builds. You will need to download the latest Cobertura distribution, and unzip it somewhere on your hard disk. 
+
+
+To make your build more portable, and therefore easier to deploy into Jenkins, it is a good idea to place the Cobertura distribution you are using within your project directory, and to save it in your version control system. This way it is easier to ensure that the build will use the same version of Cobertura no matter where it is run. 
+
+
+'''<nowiki><path </nowiki>id<nowiki>=</nowiki>"cobertura.classpath">'''
+
+<nowiki><fileset </nowiki>dir<nowiki>=</nowiki>"${cobertura.dir}">
+
+'''<nowiki><include </nowiki>name<nowiki>=</nowiki>"cobertura.jar" />'''
+
+<nowiki></fileset></nowiki>
+
+<nowiki></path></nowiki>
+
+<nowiki><target </nowiki>name<nowiki>=</nowiki>"instrument" depends<nowiki>=</nowiki>"init,compile">
+
+<nowiki><delete </nowiki>file<nowiki>=</nowiki>"cobertura.ser"/>
+
+<nowiki><delete </nowiki>dir<nowiki>=</nowiki>"${instrumented.dir}" />
+
+<nowiki><cobertura-instrument </nowiki>todir<nowiki>=</nowiki>"${instrumented.dir}">
+
+<nowiki><ignore </nowiki>regex<nowiki>=</nowiki>"org.apache.log4j.*" />
+
+
+<nowiki><fileset </nowiki>dir<nowiki>=</nowiki>"${classes.dir}">
+
+<nowiki><include </nowiki>name<nowiki>=</nowiki>"**/*.class" />
+
+<nowiki><exclude </nowiki>name<nowiki>=</nowiki>"**/*Test.class" />
+
+<nowiki></fileset></nowiki>
+
+<nowiki></cobertura-instrument></nowiki>
+
+<nowiki></target></nowiki>
+
+<nowiki><target </nowiki>name<nowiki>=</nowiki>"coverage-check">
+
+<nowiki><cobertura-check </nowiki>branchrate<nowiki>=</nowiki>"34" totallinerate<nowiki>=</nowiki>"100" />
+
+<nowiki></target></nowiki>
+
+
+<nowiki><target </nowiki>name<nowiki>=</nowiki>"coverage-report">
+
+<nowiki><cobertura-report </nowiki>srcdir<nowiki>=</nowiki>"${src.dir}" destdir<nowiki>=</nowiki>"${coverage.xml.dir}" format<nowiki>=</nowiki>"xml" />
+
+<nowiki></target></nowiki>
+
+
+# 
+## 
+### '''Cobertura for Maven'''
+
+Producing code coverage metrics with Cobertura in Maven is relatively straightforward. If all you are interested in is producing code coverage data, you just need to add the cobertura-maven-plugin to the build section of your pom.xml file: 
+
+<nowiki><project></nowiki>
+
+...
+
+<nowiki><build></nowiki>
+
+<nowiki><plugins></nowiki>
+
+<nowiki><plugin></nowiki>
+
+<nowiki><groupId></nowiki>org.codehaus.mojo<nowiki></groupId></nowiki>
+
+<nowiki><artifactId></nowiki>cobertura-maven-plugin<nowiki></artifactId></nowiki>
+
+<nowiki><version></nowiki>2.5.1<nowiki></version></nowiki>
+
+<nowiki><configuration></nowiki>
+
+<nowiki><formats></nowiki>
+
+<nowiki><format></nowiki>html<nowiki></format></nowiki>
+
+<nowiki><format></nowiki>xml<nowiki></format></nowiki>
+
+<nowiki></formats></nowiki>
+
+<nowiki></configuration></nowiki>
+
+<nowiki></plugin></nowiki>
+
+...
+
+<nowiki></plugins></nowiki>
+
+<nowiki><build></nowiki>
+
+...
+
+<nowiki></project></nowiki>
+
+
+This will generate code coverage metrics when you invoke the Cobertura plugin directly: 
+
+
+$ mvn cobertura:cobertura 
+
+
+The code coverage data will be generated in the target/site/cobertura directory, in a file called 
+
+coverage.xml. 
+
+Then we can check the result as,
+
+
+[[Image:]]
+
+# 
+## '''Code quality'''
+
+Before we look at how to report on code quality metrics in Jenkins, it can be useful to take a step back and look at the larger picture. Code Quality metrics are of limited value in isolation—they need to be part of a broader process improvement strategy. 
+
+
+The first level of code quality integration should be the IDE. Modern IDEs have great support for many code quality tools—Checkstyle, PMD, and FindBugs all have plugins for Eclipse, NetBeans, and IntelliJ, which provide rapid feedback for developers on code quality issues. This is a much faster and more efficient way to provide feedback for individual developers, and to teach developers about the organizational or project coding standards. 
+
+
+# 
+## 
+### '''Checkstyle'''
+
+Checkstyle is a static analysis tool for Java. Originally designed to enforce a set of highly-configurable coding standards, Checkstyle now also lets you check for poor coding practices, as well as overly complex and duplicated code. Checkstyle is a versatile and flexible tool that should have its place in any Java-based code quality analysis strategy. 
+
+
+Checkstyle supports a very large number of rules, including ones relating to naming conventions, annotations, javadoc comments, class and method size, code complexity metrics, poor coding practices, and many others. 
+
+
+<nowiki><target </nowiki>name<nowiki>=</nowiki>"checkstyle" depends<nowiki>=</nowiki>"compile">
+
+<nowiki><mkdir </nowiki>dir<nowiki>=</nowiki>"test-reports/checkstyle-xml" />
+
+<nowiki><checkstyle </nowiki>config<nowiki>=</nowiki>"config/custom-checkstyle.xml">
+
+<nowiki><fileset </nowiki>dir<nowiki>=</nowiki>"src" includes<nowiki>=</nowiki>"**/*.java"/>
+
+<nowiki><formatter </nowiki>type<nowiki>=</nowiki>"xml" toFile<nowiki>=</nowiki>"test-reports/checkstyle-xml/checkstyle-result.xml"/>
+
+<nowiki></checkstyle></nowiki>
+
+<nowiki></target></nowiki>
+
+
+If such checkstyle project is added into Jenkins, then the project can be shown with automatic checkstyle step. After install CheckStyle Plugin, then and the project build summary will be like,
+
+
+[[Image:]]
+
+And also with more detail after we click specific warning.
+
+
+[[Image:]]
+
+# 
+## 
+### '''PMD'''
+
+PMD is another popular static analysis tool. It focuses on potential coding problems such as unused or suboptimal code, code size and complexity, and good coding practices. Some typical rules include “Empty If Statement,” “Broken Null Check,” “Avoid Deeply Nested If Statements,” “Switch Statements Should Have Default,” and “Logger Is Not Static Final.” There is a fair amount of overlap with some of the Checkstyle rules, though PMD does have some more technical rules, and more specialized ones such as rules related to JSF and Android. 
+
+
+Add it to ant's build.xml
+
+'''<nowiki><path </nowiki>id<nowiki>=</nowiki>"pmd.classpath">'''
+
+<nowiki><pathelement </nowiki>location<nowiki>=</nowiki>"[mailto:org.apache.maven.model.Build@6da706b0 org.apache.maven.model.Build@6da706b0]"/>
+
+<nowiki><fileset </nowiki>dir<nowiki>=</nowiki>"lib/pmd">
+
+<nowiki><include </nowiki>name<nowiki>=</nowiki>"*.jar"/>
+
+<nowiki></fileset></nowiki>
+
+<nowiki></path></nowiki>
+
+<nowiki><taskdef </nowiki>name<nowiki>=</nowiki>"pmd" classname<nowiki>=</nowiki>"net.sourceforge.pmd.ant.PMDTask"
+
+classpathref<nowiki>=</nowiki>"pmd.classpath"/>
+
+<nowiki><taskdef </nowiki>name<nowiki>=</nowiki>"cpd" classname<nowiki>=</nowiki>"net.sourceforge.pmd.cpd.CPDTask"
+
+classpathref<nowiki>=</nowiki>"pmd.classpath"/>
+
+
+<nowiki><target </nowiki>name<nowiki>=</nowiki>"pmd">
+
+<nowiki><taskdef </nowiki>name<nowiki>=</nowiki>"pmd" classname<nowiki>=</nowiki>"net.sourceforge.pmd.ant.PMDTask"
+
+classpathref<nowiki>=</nowiki>"pmd.classpath"/>
+
+<nowiki><pmd </nowiki>rulesetfiles<nowiki>=</nowiki>"basic" shortFilenames<nowiki>=</nowiki>"true">
+
+<nowiki><formatter </nowiki>type<nowiki>=</nowiki>"xml" toFile<nowiki>=</nowiki>"target/pmd.xml" />
+
+<nowiki><fileset </nowiki>dir<nowiki>=</nowiki>"src/main/java" includes<nowiki>=</nowiki>"**/*.java"/>
+
+<nowiki></pmd></nowiki>
+
+<nowiki></target></nowiki>
+
+
+After that, the result report page is similar to checkstyle. After installed PMD report plugin,
+
+[[Image:]]then we can get the PMD report project.
+
+
+# 
+## 
+### '''FindBugs'''
+
+FindBugs is a powerful code quality analysis tool that checks your application byte code for potential bugs, performance problems, or poor coding habits. FindBugs is the result of research carried out at the University of Maryland lead by Bill Pugh, that studies byte code patterns coming from bugs in large real-world projects, such as the JDKs, Eclipse, and source code from Google applications. FindBugs can detect some fairly significant issues such as null pointer exceptions, infinite loops, and unintentionally accessing the internal state of an object. Unlike many other static analysis tools, FindBugs tends to find a smaller number of issues, but of those issues, a larger proportion will be important. 
+
+
+Integrate Findbugs with Ant,
+
+
+<nowiki><target </nowiki>name<nowiki>=</nowiki>"findbugs" depends<nowiki>=</nowiki>"compile">
+
+<nowiki><mkdir </nowiki>dir<nowiki>=</nowiki>"test-reports/findbugs-xml" />
+
+<nowiki><findbugs </nowiki>home<nowiki>=</nowiki>"${findbugs.home}" output<nowiki>=</nowiki>"xml" outputFile<nowiki>=</nowiki>"test-reports/findbugs-xml/findbugs-report.xml">
+
+ <nowiki><class </nowiki>location<nowiki>=</nowiki>"${classes.dir}" />
+
+<nowiki><auxClasspath </nowiki>refId<nowiki>=</nowiki>"dependency.classpath" />
+
+<nowiki><sourcePath </nowiki>path<nowiki>=</nowiki>"src" />
+
+<nowiki></findbugs></nowiki>
+
+<nowiki></target></nowiki>
+
+
+After FindBug reports plugin installed, we will get report pages,
+
+
+[[Image:]]
+
+After click FindBugs Warnings, it will change the Warning summary page. After click the detailed warning, it shows the issue,
+
+
+[[Image:]]
+
+
+'''TODO, '''
+
+
+# '''Security'''
+# '''Plugin'''
+# '''Generate reports'''
+# '''Extensibility'''
+# '''Mantenancy'''
+
+
