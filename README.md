@@ -3,7 +3,9 @@ jenkins
 
 jenkins-tutorial
 
-Help message stored in Jenkins_usage_guide.html
+Help message from [http://vpn.lianlab.com/jenkins] 
+
+Demo site is [http://vpn.lianlab.com:8080]
 
 Richard Wu (richard.wu@lianlab.org)
 
