@@ -5,7 +5,7 @@ jenkins-tutorial
 
 Help message from [http://vpn.lianlab.com/jenkins] 
 
-Demo site is [http://vpn.lianlab.com:8080]
+Demo site is [http://vpn.lianlab.com:8080] , user name "demo", password "richard"
 
 Richard Wu (richard.wu@lianlab.org)
 
